@@ -22,7 +22,5 @@ iCuisine為一套融合了社交及美食地圖評論功能的Android手機軟�
 
 <div align=center>影片介紹<img width="300" height="300" src="https://github.com/gjim50701/GoogleFoodMap-iCuisine/blob/master/image/QR.jpg"/></div>
 
-# https://www.youtube.com/watch?v=Di2mu3AIhSQ&feature=youtu.be
-
-
+<div align=center>https://www.youtube.com/watch?v=Di2mu3AIhSQ&feature=youtu.be</></div>
 
