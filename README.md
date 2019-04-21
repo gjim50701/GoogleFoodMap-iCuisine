@@ -24,3 +24,5 @@ iCuisine為一套融合了社交及美食地圖評論功能的Android手機軟�
 
 <div align=center>https://www.youtube.com/watch?v=Di2mu3AIhSQ&feature=youtu.be</></div>
 
+<div align=center>此Porject於2018年由淡江資管4B的鄒仁豪、吳和諭、陳伯辰、魏莛翰、張蘇瀚共同開發完成</></div>
+
