@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class PostRequest extends StringRequest {
     private static final String
-            REGISTER_REQUEST_URL="http://192.168.1.108/php/Post_Insert.php";
+            REGISTER_REQUEST_URL="http://163.13.201.88/php/Post_Insert.php";
     private Map<String,String> params; public PostRequest(String user_id,Double lat,Double lon,String pic_val,String desc_val,Double star , Response.Listener<String> responseListener)
     {
         super(Method.POST,REGISTER_REQUEST_URL,responseListener,null);

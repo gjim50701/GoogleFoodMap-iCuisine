@@ -11,7 +11,7 @@ import java.util.Map;
  */
 
 public class AddFriendRequest extends StringRequest {
-    private static final String REGISTER_REQUEST_URL="http://192.168.1.108/php/Friend_Insert.php";
+    private static final String REGISTER_REQUEST_URL="http://163.13.201.88/php/Friend_Insert.php";
     private Map<String,String> params;
 
     public AddFriendRequest(String User_Id, String Friend_Id ,Response.Listener<String> responseListener)

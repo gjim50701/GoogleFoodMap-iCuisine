@@ -12,7 +12,7 @@ import java.util.Map;
  */
 
 public class MarkerDataRequest extends StringRequest {
-    private static final String REGISTER_REQUEST_URL="http://192.168.1.108/php/Map_Insert1.php";
+    private static final String REGISTER_REQUEST_URL="http://163.13.201.88/php/Map_Insert1.php";
     private Map<String,String> params;
 
     public MarkerDataRequest(Double lat,Double lon,String User_Id,Response.Listener<String> responseListener)

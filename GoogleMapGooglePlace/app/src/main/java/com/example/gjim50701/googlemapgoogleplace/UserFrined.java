@@ -34,7 +34,7 @@ public class UserFrined extends AppCompatActivity {
     private EditText searchinput;
 
     private String User_Id;
-    private String urlFirend = "http://192.168.1.108/php/User_Check.php";
+    private String urlFirend = "http://163.13.201.88/php/User_Check.php";
 
 
     @Override

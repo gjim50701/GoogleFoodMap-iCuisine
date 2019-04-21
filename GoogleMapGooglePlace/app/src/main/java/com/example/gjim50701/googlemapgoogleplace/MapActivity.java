@@ -93,7 +93,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mLocationPermissionsGranted) {
    //         getDeviceLocation();
 
-            center = new LatLng(25.1754041, 121.4495986);
+            center = new LatLng(25.1752467, 121.4494943);
             cameraPosition = new CameraPosition.Builder().target(center).zoom(17).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -128,14 +128,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static final String STAR = "Node_Star";
     public static final String PICTURE = "Node_Pic";
 
-
-
-    private String fastFoodurl = "http://192.168.1.108/php/marker_ff.php";
-    private String coffeeShopurl = "http://192.168.1.108/php/marker_cafe.php";
-    private String restauranturl = "http://192.168.1.108/php/marker_res.php";
-    private String userurl = "http://192.168.1.108/php/markers2.php";
-    private String picurl = "http://192.168.1.108/php/Pic_Sent.php";
-    private String friendurl = "http://192.168.1.108/php/Friend_Map2.php";
+    private String mainurl = "http://163.13.201.88/php/markers.php";
+    private String userurl = "http://163.13.201.88/php/markers2.php";
+    private String picurl = "http://163.13.201.88/php/Pic_Sent.php";
+    private String friendurl = "http://163.13.201.88/php/Friend_Map2.php";
 
     String tag_json_obj = "json_obj_req";
 
@@ -151,7 +147,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private GoogleApiClient mGoogleApiClient;
     private PlaceInfo mPlace;
-    private Marker mMarker,mNewMarker,Defaultmarker;
+    private Marker mMarker,mNewMarker,Usermarker,Defaultmarker;
     private Bundle bundle = new Bundle();
     private LatLng latLng,center,latlon;
     private CameraPosition cameraPosition;
@@ -182,11 +178,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void init(){
         Log.d(TAG, "init: initializing");
 
-        getUFMarkers(userurl,"User");
-        getUFMarkers(friendurl,"Friend");
-        getMainMarkers(fastFoodurl,"Fast Food");
-        getMainMarkers(coffeeShopurl,"Coffee Shop");
-        getMainMarkers(restauranturl,"Restaurant");
+        getUserMarkers();
+        getFriendMarkers();
+        getMainMarkers();
 
 
         mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
@@ -265,51 +259,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
 
-                final String[] tag = {"所有","用戶", "好友", "餐廳", "咖啡廳", "速食"};
-
-                new AlertDialog.Builder(MapActivity.this)
-                        .setTitle("選擇類別")
-                        .setItems(tag,new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                mMap.clear();
-
-                                switch(tag[which]) {
-                                    case "所有":
-                                        getUFMarkers(userurl,"User");
-                                        getUFMarkers(friendurl,"Friend");
-                                        getMainMarkers(fastFoodurl,"Fast Food");
-                                        getMainMarkers(coffeeShopurl,"Coffee Shop");
-                                        getMainMarkers(restauranturl,"Restaurant");
-                                        break;
-                                    case "用戶":
-                                        getUFMarkers(userurl,"User");
-                                        break;
-                                    case "好友":
-                                        getUFMarkers(friendurl,"Friend");
-                                        break;
-                                    case "餐廳":
-                                        getMainMarkers(restauranturl,"Restaurant");
-                                        break;
-                                    case "咖啡廳":
-                                        getMainMarkers(coffeeShopurl,"Coffee Shop");
-                                        break;
-                                    case "速食":
-                                        getMainMarkers(fastFoodurl,"Fast Food");
-                                        break;
-                                }
-                            }
-                        })
-                        .create()
-                        .show();
+                if(isOpenAllMarker==true){
+                    mMap.clear();
+                    getUserMarkers();
+                    getFriendMarkers();
+                    isOpenAllMarker = false;
+                }else{
+                    getMainMarkers();
+                    isOpenAllMarker = true;
+                }
             }
         });
-
+        hideSoftKeyboard();
     }
 
-    private void getMainMarkers(String url, final String tag) {
-        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+    private void getMainMarkers() {
+        StringRequest strReq = new StringRequest(Request.Method.POST, mainurl, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -328,7 +293,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         star = Double.parseDouble(jsonObject.getString(STAR));
                         latLng = new LatLng(Double.parseDouble(jsonObject.getString(LAT)), Double.parseDouble(jsonObject.getString(LNG)));
 
-                        addMarker(latLng, title,phone_number,address,star,tag);
+                        addMarker(latLng, title,phone_number,address,star);
                     }
 
                 } catch (JSONException e) {
@@ -346,9 +311,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
     }
 
-    private void getUFMarkers(String url, final String tag) {
+    private void addMarker(LatLng latlng, final String title,final String phone_number,final String address,final Double star) {
 
-        StringRequest strReQ = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+        mSnippet ="地址: "+address+"\n"
+                +"電話: "+phone_number+"\n"
+                +"評價: "+star;
+
+        markerOptions.position(latlng)
+                .title(title)
+                .snippet(mSnippet);
+
+        Defaultmarker = mMap.addMarker(markerOptions);
+        Defaultmarker.setTag("0");
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Toast.makeText(getApplicationContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void getUserMarkers() {
+
+        StringRequest strReQ = new StringRequest(Request.Method.POST, userurl, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.e("Response: ", response.toString());
@@ -366,7 +351,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         star = Double.parseDouble(jsonObject.getString(STAR));
                         latLng = new LatLng(Double.parseDouble(jsonObject.getString(LAT)), Double.parseDouble(jsonObject.getString(LNG)));
 
-                        addMarker(latLng, title, phone_number, address, star,tag);
+                        addUserMarker(latLng, title, phone_number, address, star);
                     }
 
                 } catch (JSONException e) {
@@ -391,29 +376,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         AppController.getInstance().addToRequestQueue(strReQ, tag_json_obj);
     }
 
-    private void addMarker(LatLng latlng, final String title,final String phone_number,final String address,final Double star,final String tag) {
+    private void addUserMarker(LatLng latlng, final String title,final String phone_number,final String address,final Double star) {
 
         mSnippet ="地址: "+address+"\n"
                 +"電話: "+phone_number+"\n"
                 +"評價: "+star;
 
-        markerOptions.position(latlng)
+        markerOptionS.position(latlng)
                 .title(title)
-                .snippet(mSnippet);
+                .snippet(mSnippet)
+                .icon(defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 
-        if(tag.equals("User")){
-            Defaultmarker = mMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.people)));
-        }else if(tag.equals("Friend")){
-            Defaultmarker = mMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.fri)));
-        }else if(tag.equals("Fast Food")){
-            Defaultmarker = mMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ff)));
-        }else if(tag.equals("Coffee Shop")){
-            Defaultmarker = mMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.cafe)));
-        }else if(tag.equals("Restaurant")){
-            Defaultmarker = mMap.addMarker(markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.res)));
-        }
-
-        Defaultmarker.setTag(tag);
+        Usermarker = mMap.addMarker(markerOptionS);
+        Usermarker.setTag("1");
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
@@ -421,6 +396,75 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void getFriendMarkers(){
+
+        StringRequest strReq = new StringRequest(Request.Method.POST, friendurl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.e("Response: ", response.toString());
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    String getObject = jObj.getString("node");
+                    JSONArray jsonArray = new JSONArray(getObject);
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        title = jsonObject.getString(TITLE);
+                        address = jsonObject.getString(ADDRESS);
+                        phone_number = jsonObject.getString(PHONE_NUMBER);
+                        star = Double.parseDouble(jsonObject.getString(STAR));
+                        latLng = new LatLng(Double.parseDouble(jsonObject.getString(LAT)), Double.parseDouble(jsonObject.getString(LNG)));
+
+                        addFriendMarker(latLng, title, phone_number, address, star);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Error: ", error.getMessage());
+                Toast.makeText(MapActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                params.put("User_Id",User_Id);
+                return params;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+
+    }
+
+    private void addFriendMarker(LatLng latlng, final String title,final String phone_number,final String address,final Double star) {
+
+        mSnippet ="地址: "+address+"\n"
+                +"電話: "+phone_number+"\n"
+                +"評價: "+star;
+
+        markerOptionS.position(latlng)
+                .title(title)
+                .snippet(mSnippet)
+                .icon(defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+        Usermarker = mMap.addMarker(markerOptionS);
+        Usermarker.setTag("2");
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Toast.makeText(getApplicationContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
@@ -478,7 +522,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final String user_Id = gv.getUserId();
         final String titledata = marker.getTitle();
 
-        if (marker.getTag() == "Fast Food" || marker.getTag() == "Coffee Shop" || marker.getTag() == "Restaurant"  ) {
+        if (marker.getTag() == "0" ) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
             builder.setTitle(marker.getTitle())
                     .setMessage(marker.getSnippet())
@@ -520,7 +564,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             queue.add(markerDataRequest);
                         }
                     })
-                    .setPositiveButton("貼文評論", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("評論貼文", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
@@ -535,11 +579,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     .create()
                     .show();
 
-        } else if (marker.getTag() == "User"){
+        } else if (marker.getTag() == "1"){
             AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
             builder.setTitle(marker.getTitle())
                     .setMessage(marker.getSnippet())
-                    .setView(iv)
                     .setNeutralButton("發文", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -577,7 +620,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             queue.add(removeMarkerDataRequest);
                         }
                     })
-                    .setPositiveButton("貼文評論", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("評論貼文", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent = new Intent();
@@ -591,12 +634,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     .create()
                     .show();
 
-        } else if (marker.getTag() == "Friend") {
+        } else if (marker.getTag() == "2") {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
             builder.setTitle(marker.getTitle())
                     .setMessage(marker.getSnippet())
-                    .setView(iv)
                     .setNeutralButton("發文", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -610,7 +652,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                         }
                     })
-                    .setPositiveButton("貼文評論", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("評論貼文", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent = new Intent();
@@ -632,7 +674,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapLongClick(final LatLng point) {
 
-        mNewMarker = mMap.addMarker(markerOptionsss.position(point).icon(BitmapDescriptorFactory.fromResource(R.mipmap.people)));
+        mNewMarker = mMap.addMarker(markerOptionsss.position(point).icon(defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
         new AlertDialog.Builder(MapActivity.this)
                 .setTitle("增新標記")

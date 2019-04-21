@@ -11,7 +11,7 @@ import java.util.Map;
  */
 
 public class NewMarkerRequest extends StringRequest {
-    private static final String REGISTER_REQUEST_URL="http://192.168.1.108/php/Map_Insert2.php";
+    private static final String REGISTER_REQUEST_URL="http://163.13.201.88/php/Map_Insert2.php";
     private Map<String,String> params;
 
     public NewMarkerRequest(Double Lat, Double Lon, String Restaurant_Name, String Restaurant_Phone, Double Star,String User_Id,Response.Listener<String> responseListener)

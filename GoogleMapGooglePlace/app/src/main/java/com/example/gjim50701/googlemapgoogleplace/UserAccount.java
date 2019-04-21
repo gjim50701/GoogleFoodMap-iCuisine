@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class UserAccount extends AppCompatActivity {
 
-    private String nameurl = "http://192.168.1.108/php/User_Update.php";
+    private String nameurl = "http://163.13.201.88/php/User_Update.php";
     private String User_Id,User_Name,User_Image,User_New_Name;
 
     private ImageView userImage,changeName,changeImage;
